@@ -1,15 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.api.router import api_router
-from app.core.database import engine, Base
-import app.models  # Imports models so SQLAlchemy recognizes them
+from app.api.auth import router as auth_router
 
-# Create tables in SQLite
-Base.metadata.create_all(bind=engine)
+app = FastAPI(title="KALA-Connect API", version="1.0.0")
 
-app = FastAPI(title=settings.PROJECT_NAME)
-
+# Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,8 +13,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_router, prefix=settings.API_V1_STR)
+# Attach authentication routes
+app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 
 @app.get("/")
-def read_root():
-    return {"status": "online", "message": f"{settings.PROJECT_NAME} API is live"}
+def root():
+    return {"message": "KALA-Connect Backend is live"}
