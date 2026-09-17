@@ -6,7 +6,6 @@ from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.models.user import User
 from app.schemas.user import UserCreate, UserOut, Token
-
 router = APIRouter()
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -16,9 +15,10 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     
     hashed_pw = get_password_hash(user_in.password)
-    user = User(email=user_in.email, hashed_password=hashed_pw, full_name=user_in.full_name)
+    user = User(email=user_in.email, hashed_password=hashed_pw)
     db.add(user)
     db.commit()
+    
     db.refresh(user)
     return user
 
